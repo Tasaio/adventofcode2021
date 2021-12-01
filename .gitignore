@@ -1,3 +1,11 @@
+# Session variable & inputs
+input
+SESSION.conf
+
+# IntelliJ IDEA
+.idea
+*.iml
+
 # Compiled class file
 *.class
 
@@ -9,6 +17,13 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
+
+# Gradle
+.gradle
+
+# Kotlin
+out
+lib
 
 # Package Files #
 *.jar
