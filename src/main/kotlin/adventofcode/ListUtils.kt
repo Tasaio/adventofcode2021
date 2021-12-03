@@ -1,12 +1,24 @@
 package adventofcode
 
 import java.util.*
+import java.util.stream.IntStream
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import kotlin.streams.toList
 
 fun <T> List<T>.rotateToElement(element: T) {
     Collections.rotate(this, -this.indexOf(element))
+}
+
+fun List<String>.applyToEachColumn(function: (List<Char>) -> Char): String {
+    return IntStream.range(0, this[0].length)
+        .mapToObj { pos ->
+            this.map { it[pos] }.toList()
+        }
+        .map { function.invoke(it) }
+        .toList()
+        .joinToString(separator = "") { it.toString() }
 }
 
 fun <T> Collection<T>.powerset(): Set<Set<T>> = when {
