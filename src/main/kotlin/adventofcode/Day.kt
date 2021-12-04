@@ -16,7 +16,7 @@ abstract class Day(val year: Int, val day: Int) {
     var sum: BigInteger = BigInteger.ZERO
     var counter: Long = 0L
 
-    fun reset() {
+    open fun reset() {
         counter = 0L
         sum = BigInteger.ZERO
     }
