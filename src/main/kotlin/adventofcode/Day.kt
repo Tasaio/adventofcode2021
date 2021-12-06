@@ -11,7 +11,7 @@ fun InputStream.readTextAndClose(charset: Charset = Charsets.UTF_8): String {
     return this.bufferedReader(charset).use { it.readText() }
 }
 
-abstract class Day(val year: Int, val day: Int) {
+abstract class Day(val year: Int, val day: Int, val staticInput: String? = null) {
 
     var sum: BigInteger = BigInteger.ZERO
     var counter: Long = 0L
@@ -40,16 +40,21 @@ abstract class Day(val year: Int, val day: Int) {
     }
 
     open fun fetchInput(): List<String> {
-        val f = File("src/main/resources/input/y${year}/${year}-12-${day.toString().padStart(2, '0')}.txt")
-        if (!f.exists()) {
-            Files.createDirectories(f.toPath().parent)
-            f.writeText(fetchFromRemote())
+        var input: List<String>
+        if (this.staticInput == null) {
+            val f = File("src/main/resources/input/y${year}/${year}-12-${day.toString().padStart(2, '0')}.txt")
+            if (!f.exists()) {
+                Files.createDirectories(f.toPath().parent)
+                f.writeText(fetchFromRemote())
+            }
+            input = f.readLines()
+        } else {
+            input = this.staticInput.split("\n")
         }
-        val list: List<String> = f.readLines()
-        if (list.last().isEmpty()) {
-            return list.dropLast(1)
+        if (input.last().isEmpty()) {
+            return input.dropLast(1)
         }
-        return list
+        return input
     }
 
     fun fetchInputAsBigInt(): List<BigInteger> {

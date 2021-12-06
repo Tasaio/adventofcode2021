@@ -2,13 +2,17 @@ import adventofcode.*
 import java.math.BigInteger
 
 fun main() {
+    val testInput = "3,4,3,1,2"
+    val test = Day06(testInput)
+    println("TEST: " + test.part1())
+
     val day = Day06()
     println(day.part1())
     day.reset()
     println(day.part2())
 }
 
-class Day06 : Y2021Day(6) {
+open class Day06(staticInput: String? = null) : Y2021Day(6, staticInput) {
     private val input = fetchInputAsSingleLineBigInteger(",").map { it.toInt() }
 
     override fun part1(): Number? {
@@ -39,17 +43,16 @@ class Day06 : Y2021Day(6) {
 
     override fun part2(): Number? {
         var fishCount = input.size.toBigInteger()
-        val addOnDay = hashMapOf<Int, BigInteger>()
+        val addOnDay = BigIntegerMap<Int>()
 
-        input.forEach { addOnDay[it + 1] = addOnDay.getOrDefault(it + 1, BigInteger.ZERO) + BigInteger.ONE }
+        input.forEach { addOnDay.inc(it + 1) }
 
         for (i in 1..256) {
-            fishCount += addOnDay.getOrDefault(i, BigInteger.ZERO)
-            addOnDay[i + 7] = addOnDay.getOrDefault(i + 7, BigInteger.ZERO) + addOnDay.getOrDefault(i, BigInteger.ZERO)
-            addOnDay[i + 9] = addOnDay.getOrDefault(i + 9, BigInteger.ZERO) + addOnDay.getOrDefault(i, BigInteger.ZERO)
+            fishCount += addOnDay[i]
+            addOnDay[i + 7] += addOnDay[i]
+            addOnDay[i + 9] += addOnDay[i]
         }
 
         return fishCount
     }
-
 }
