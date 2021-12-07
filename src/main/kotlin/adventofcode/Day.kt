@@ -65,6 +65,10 @@ abstract class Day(val year: Int, val day: Int, val staticInput: String? = null)
         return ArrayList(fetchInput()[0].split(separator).map { it.toBigInteger() })
     }
 
+    fun fetchInputAsSingleLineInteger(separator: String = ","): MutableList<Int> {
+        return ArrayList(fetchInput()[0].split(separator).map { it.toInt() })
+    }
+
     fun fetchInputAsListMap(delimiter: String = ":"): List<Map<String, String>> {
         val lines = fetchInput()
         val listMap = arrayListOf<Map<String, String>>()

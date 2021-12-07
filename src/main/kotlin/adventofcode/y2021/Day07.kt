@@ -19,12 +19,12 @@ fun main() {
 }
 
 open class Day07(staticInput: String? = null) : Y2021Day(7, staticInput) {
-    private val input = fetchInputAsSingleLineBigInteger(",")
+    private val input = fetchInputAsSingleLineInteger(",")
 
     override fun part1(): Number? {
         val minValue = MinValue()
-        for (i in 0..input.maxOf { it }.toInt()) {
-            val sum = input.sumOf { (it - i.toBigInteger()).abs() }
+        for (i in input.minOf { it }..input.maxOf { it }) {
+            val sum = input.sumOf { (it - i).toBigInteger().abs() }
             minValue.next(sum)
         }
         return minValue.get()
@@ -32,8 +32,8 @@ open class Day07(staticInput: String? = null) : Y2021Day(7, staticInput) {
 
     override fun part2(): Number? {
         val minValue = MinValue()
-        for (i in 0..input.maxOf { it }.toInt()) {
-            val sum = input.sumOf { fuelCost((it - i.toBigInteger()).abs()) }
+        for (i in input.minOf { it }..input.maxOf { it }) {
+            val sum = input.sumOf { fuelCost((it - i).toBigInteger().abs()) }
             minValue.next(sum)
         }
         return minValue.get()
