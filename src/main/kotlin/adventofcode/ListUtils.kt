@@ -26,6 +26,20 @@ fun <T> Collection<T>.powerset(): Set<Set<T>> = when {
     else -> drop(1).powerset().let { it + it.map { it + first() } }
 }
 
+fun <T> Set<T>.allPermutations(): Set<List<T>> {
+    fun <T> internalAllPermutations(list: List<T>): Set<List<T>> {
+        if (list.isEmpty()) return setOf(emptyList())
+
+        val result: MutableSet<List<T>> = mutableSetOf()
+        for (i in list.indices) {
+            internalAllPermutations(list - list[i]).forEach{ item -> result.add(item + list[i]) }
+        }
+        return result
+    }
+
+    return internalAllPermutations(toList())
+}
+
 fun <T> List<T>.copyOfListWithNewElement(elementToAdd: T): ArrayList<T> {
     val newList = ArrayList(this)
     newList.add(elementToAdd)
