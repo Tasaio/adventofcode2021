@@ -12,7 +12,7 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
         return Coordinate(posX, posY)
     }
 
-    fun getNeighbors(distance: Int = 1, diagonal: Boolean = true, straight: Boolean = true): List<GridNode> {
+    fun getNeighbors(distance: Int = 1, diagonal: Boolean = true, straight: Boolean = true, wrap: Boolean = false): List<GridNode> {
         val list = arrayListOf<GridNode>()
         for (x in posX - distance..posX + distance) {
             for (y in posY - distance..posY + distance) {
@@ -23,6 +23,9 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
                 } else if (x == posX && y == posY) {
                     continue
                 } else if (x < 0 || y < 0 || y >= parent.grid.size || x >= parent.grid[y].size) {
+                    if (wrap) {
+
+                    }
                     continue
                 }
                 list.add(parent.get(x, y))

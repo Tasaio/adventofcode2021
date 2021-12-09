@@ -61,6 +61,10 @@ abstract class Day(val year: Int, val day: Int, val staticInput: String? = null)
         return fetchInput().map { it.toBigInteger() }
     }
 
+    fun fetchInputAsGrid(): Grid {
+        return Grid(fetchInput())
+    }
+
     fun fetchInputAsSingleLineBigInteger(separator: String = ","): MutableList<BigInteger> {
         return ArrayList(fetchInput()[0].split(separator).map { it.toBigInteger() })
     }

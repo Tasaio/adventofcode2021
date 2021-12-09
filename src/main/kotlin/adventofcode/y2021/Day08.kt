@@ -63,32 +63,23 @@ class Day08(staticInput: String? = null) : Y2021Day(8, staticInput) {
 
     override fun part2(): Number? {
         val permutations = displayDigits[8]!!.allPermutations()
-        input.forEach { line ->
+        return input.sumOf { line ->
             val matchingDic = permutations.firstNotNullOf { permutation ->
                 val dic = hashMapOf<Char, Char>()
-                var i = 0
-                for (c in 'a'..'g') {
-                    dic[c] = permutation[i++]
+                for (i in 0..6) {
+                    dic['a' + i] = permutation[i]
                 }
-                val match = line[0].all { word ->
-                    val translated = word.map { dic[it] }.toSet()
-                    displayDigits.containsValue(translated)
-                }
+                val match = line[0].all { displayDigits.containsValue( it.map { dic[it] }.toSet() ) }
                 if (match) dic else null
             }
-
             var res = ""
             for (word in line[1]) {
                 val translated = word.map { matchingDic[it] }.toSet()
-                val digit = displayDigits.entries
-                    .filter { it.value == translated }
-                    .map { it.key }
-                    .single()
+                val digit = displayDigits.entries.filter { it.value == translated }.map { it.key }.single()
                 res += digit.toString()
             }
-            sum += res.toBigInteger()
+            res.toInt()
         }
-        return sum
     }
 
 }
