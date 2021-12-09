@@ -30,13 +30,12 @@ open class Day09(staticInput: String? = null) : Y2021Day(9, staticInput) {
     }
 
     override fun part1(): Number? {
-        return grid.filter { it.contentAsNum() < it.getNeighbors().minOf { it.contentAsNum() } }
-            .sumOf { it.contentAsNum() + 1 }
+        return grid.filter { it.content < it.getNeighbors().minOf { it.content } }.sumOf { it.contentAsNum() + 1 }
     }
 
     override fun part2(): Number? {
         val lowPoints = grid.filter { node ->
-            node.content.digitToInt() < node.getNeighbors().minOf { it.content.digitToInt() }
+            node.contentAsNum() < node.getNeighbors().minOf { it.contentAsNum() }
         }
 
         return lowPoints.map {
@@ -49,7 +48,7 @@ open class Day09(staticInput: String? = null) : Y2021Day(9, staticInput) {
                     .filter { node -> !seen.contains(node) }
                     .forEach { node ->
                         seen.add(node)
-                        node.getNeighbors(1, diagonal = false)
+                        node.getNeighbors()
                             .filter { it.content.digitToInt() != 9 }
                             .filter { it.content.digitToInt() > node.content.digitToInt() }
                             .forEach {
