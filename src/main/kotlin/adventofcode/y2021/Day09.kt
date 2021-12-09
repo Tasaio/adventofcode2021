@@ -1,5 +1,4 @@
 import adventofcode.GridNode
-import java.math.BigInteger
 
 fun main() {
     val testInput = """
@@ -9,9 +8,9 @@ fun main() {
         8767896789
         9899965678
     """.trimIndent()
-     val test = Day09(testInput)
-     println("TEST: " + test.part1())
-     println("TEST: " + test.part2())
+    val test = Day09(testInput)
+    println("TEST: " + test.part1())
+    println("TEST: " + test.part2())
 
     val day = Day09()
 
@@ -31,17 +30,13 @@ open class Day09(staticInput: String? = null) : Y2021Day(9, staticInput) {
     }
 
     override fun part1(): Number? {
-        grid.forEach { node ->
-            if (node.content.digitToInt() < node.getNeighbors(1, diagonal = false).minOf { it.content.digitToInt() }) {
-                sum += node.content.digitToInt().toBigInteger() + BigInteger.ONE
-            }
-        }
-        return sum
+        return grid.filter { it.contentAsNum() < it.getNeighbors().minOf { it.contentAsNum() } }
+            .sumOf { it.contentAsNum() + 1 }
     }
 
     override fun part2(): Number? {
         val lowPoints = grid.filter { node ->
-            node.content.digitToInt() < node.getNeighbors(1, diagonal = false).minOf { it.content.digitToInt() }
+            node.content.digitToInt() < node.getNeighbors().minOf { it.content.digitToInt() }
         }
 
         return lowPoints.map {
@@ -65,6 +60,6 @@ open class Day09(staticInput: String? = null) : Y2021Day(9, staticInput) {
                     }
             } while (found)
             nodes.size
-        }.sortedByDescending { it }.take(3).reduce {a, b -> a * b}
+        }.sortedByDescending { it }.take(3).reduce { a, b -> a * b }
     }
 }

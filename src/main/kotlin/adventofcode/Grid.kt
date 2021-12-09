@@ -12,10 +12,11 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
         return Coordinate(posX, posY)
     }
 
-    fun getNeighbors(distance: Int = 1, diagonal: Boolean = true, straight: Boolean = true, wrap: Boolean = false): List<GridNode> {
+    fun getNeighbors(distance: Int = 1, diagonal: Boolean = false, straight: Boolean = true, wrap: Boolean = false): List<GridNode> {
         val list = arrayListOf<GridNode>()
         for (x in posX - distance..posX + distance) {
             for (y in posY - distance..posY + distance) {
+                var _x = x; var _y = y;
                 if (!straight && (x == posX || y == posY))
                     continue
                 else if (!diagonal && x != posX && y != posY) {
@@ -24,14 +25,30 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
                     continue
                 } else if (x < 0 || y < 0 || y >= parent.grid.size || x >= parent.grid[y].size) {
                     if (wrap) {
-
+                        if (x < 0) {
+                            _x = parent.grid[0].size + x
+                        }
+                        if (y < 0) {
+                            _y = parent.grid.size + y
+                        }
+                        if (x >= parent.grid[0].size) {
+                            _x = 0 + (parent.grid[y].size - x)
+                        }
+                        if (y >= parent.grid.size) {
+                            _y = 0 + (parent.grid.size - y)
+                        }
+                    } else {
+                        continue
                     }
-                    continue
                 }
-                list.add(parent.get(x, y))
+                list.add(parent.get(_x, _y))
             }
         }
         return list
+    }
+
+    fun contentAsNum(): Int {
+        return content.digitToInt()
     }
 
     fun get(dir: Direction): GridNode? {
