@@ -1,5 +1,6 @@
 package adventofcode
 
+import java.lang.RuntimeException
 import java.math.BigInteger
 import java.util.*
 import kotlin.math.absoluteValue
@@ -48,6 +49,9 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
     }
 
     fun contentAsNum(): Int {
+        if (!content.isDigit()) {
+            throw RuntimeException("Unexpected character" + content)
+        }
         return content.digitToInt()
     }
 
@@ -214,6 +218,10 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
 
     fun get(x: Int, y: Int): GridNode {
         return grid[y][x]
+    }
+
+    fun size(): Int {
+        return sizeX() * sizeY()
     }
 
     fun sizeX(): Int {
