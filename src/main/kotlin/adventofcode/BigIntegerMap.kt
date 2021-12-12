@@ -14,12 +14,20 @@ class BigIntegerMap<KEY>(val default: BigInteger = BigInteger.ZERO): HashMap<KEY
         }
     }
 
-    fun inc(k: KEY) {
+    fun inc(k: KEY): BigIntegerMap<KEY> {
         add(k, BigInteger.ONE)
+        return this
     }
 
-    fun dec(k: KEY) {
+    fun dec(k: KEY): BigIntegerMap<KEY> {
         add(k, -BigInteger.ONE)
+        return this
+    }
+
+    fun copyOf(): BigIntegerMap<KEY> {
+        val new = BigIntegerMap<KEY>(this.default)
+        new.putAll(this)
+        return new
     }
 
     override fun get(key: KEY): BigInteger {

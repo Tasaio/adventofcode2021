@@ -30,6 +30,18 @@ fun String.parseNumbersToIntList(): List<Int> {
     return parseNumbersToBigIntegerList().map { it.toInt() }
 }
 
+fun String.stringBetween(before: String, after: String): String {
+    return this.substringAfter(before).substringBefore(after)
+}
+
+fun String.isUpperCase(): Boolean {
+    return all { it.isUpperCase() }
+}
+
+fun String.isLowerCase(): Boolean {
+    return all { it.isLowerCase() }
+}
+
 fun String.parseNumbersToBigIntegerList(): List<BigInteger> {
     val list = arrayListOf<BigInteger>()
     val sb = StringBuilder()

@@ -1,14 +1,37 @@
 package adventofcode;
 
+import java.io.DataOutputStream
 import java.io.File
 import java.io.InputStream
 import java.math.BigInteger
+import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Files
+import java.nio.file.Paths
+import kotlin.io.path.exists
+import kotlin.io.path.readLines
+import kotlin.io.path.writeLines
+import kotlin.io.path.writeText
+
 
 fun InputStream.readTextAndClose(charset: Charset = Charsets.UTF_8): String {
     return this.bufferedReader(charset).use { it.readText() }
+}
+
+private fun post(url: String, body: String, session: String): String {
+    val postDataLength = body.length
+    val conn: HttpURLConnection = URL(url).openConnection() as HttpURLConnection
+    conn.setRequestProperty("Cookie",  "session=${session}")
+    conn.setDoOutput(true)
+    conn.setInstanceFollowRedirects(false)
+    conn.setRequestMethod("POST")
+    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+    conn.setRequestProperty("Content-Length", Integer.toString(postDataLength))
+    conn.setUseCaches(false)
+    DataOutputStream(conn.getOutputStream()).use { wr -> wr.write(body.toByteArray()) }
+
+    return conn.inputStream.readTextAndClose()
 }
 
 abstract class Day(val year: Int, val day: Int, val staticInput: String? = null) {
@@ -37,6 +60,39 @@ abstract class Day(val year: Int, val day: Int, val staticInput: String? = null)
             )
         }
             .getInputStream().use { it.readTextAndClose() }
+    }
+
+    fun postAnswer(part: Int, answer: String) {
+        val done = Paths.get("src/main/resources/solutions/y${year}/${year}-12-${day.toString().padStart(2, '0')}/$part/answer.txt")
+        val failed = Paths.get("src/main/resources/solutions/y${year}/${year}-12-${day.toString().padStart(2, '0')}/$part/wrong.txt")
+        if (done.exists()) {
+            println("Already answered this part")
+            return
+        } else if (failed.exists() && failed.readLines().contains(answer)) {
+            println("Already tried this answer, it is wrong")
+            return
+        }
+        val session = this.javaClass.getResource("session.conf").readText().trim()
+
+        val response = post("https://adventofcode.com/${year}/day/${day}/answer", "level=${part}&answer=${answer}", session)
+        println("--- Output ---")
+        val articleTag = response.stringBetween("<article><p>", "</p></article>")
+        println(articleTag)
+        if (articleTag.contains("That's the right answer!")) {
+            Files.createDirectories(done.parent)
+            done.writeText(answer)
+            println("YOU GAINED A STAR!")
+        } else if (articleTag.contains("Did you already complete it?")) {
+            Files.createDirectories(done.parent)
+            done.writeText(answer)
+            println("--- Already completed ---")
+        } else if (articleTag.contains("wait")) {
+            println("--- Wait ---")
+        } else {
+            Files.createDirectories(failed.parent)
+            failed.writeLines(if (failed.exists()) failed.readLines().copyOfListWithNewElement(answer) else arrayListOf(answer))
+            println("Wrong answer")
+        }
     }
 
     open fun fetchInput(): List<String> {

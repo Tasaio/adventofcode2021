@@ -17,3 +17,7 @@ tasks {
         gradleVersion = "7.3"
     }
 }
+
+dependencies {
+    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.6.0")
+}

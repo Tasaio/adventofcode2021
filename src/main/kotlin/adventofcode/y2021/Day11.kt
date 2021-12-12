@@ -14,18 +14,12 @@ fun main() {
         4846848554
         5283751526
     """.trimIndent()
-     val test = Day11(testInput)
-     println("TEST: " + test.part1())
-     println("TEST: " + test.part2())
-
-    val day = Day11()
-
-    val t1 = System.currentTimeMillis()
-    println("${day.part1()}   (${System.currentTimeMillis() - t1}ms)")
-    day.reset()
-
-    val t2 = System.currentTimeMillis()
-    println("${day.part2()}   (${System.currentTimeMillis() - t2}ms)")
+    runDay(
+        day = Day11::class,
+        testInput = testInput,
+        testAnswer1 = 1656,
+        testAnswer2 = 195
+    )
 }
 
 open class Day11(staticInput: String? = null) : Y2021Day(11, staticInput) {
