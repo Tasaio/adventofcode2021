@@ -1,5 +1,6 @@
 package adventofcode
 
+import java.lang.RuntimeException
 import java.math.BigInteger
 
 fun String.parseNumbersToSingleInt(): Int {
@@ -28,6 +29,22 @@ fun String.parseNumbersToSingleBigInteger(): BigInteger {
 
 fun String.parseNumbersToIntList(): List<Int> {
     return parseNumbersToBigIntegerList().map { it.toInt() }
+}
+
+fun String.toPair(split: String = ","): Pair<String, String> {
+    val split = split(split)
+    if (split.size > 2) {
+        throw RuntimeException("Too many values in $this")
+    }
+    return Pair(split[0], split[1])
+}
+
+fun String.toTriple(split: String = ","): Triple<String, String, String> {
+    val split = split(split)
+    if (split.size > 3) {
+        throw RuntimeException("Too many values in $this")
+    }
+    return Triple(split[0], split[1], split[2])
 }
 
 fun String.stringBetween(before: String, after: String): String {

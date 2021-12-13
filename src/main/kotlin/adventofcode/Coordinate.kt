@@ -2,6 +2,10 @@ package adventofcode
 
 import java.math.BigInteger
 
+fun Pair<String, String>.toCoordinate(): Coordinate {
+    return Coordinate(first.toBigInteger(), second.toBigInteger())
+}
+
 class Coordinate {
 
     companion object {
@@ -14,6 +18,12 @@ class Coordinate {
     constructor() {
         this.x = BigInteger.ZERO
         this.y = BigInteger.ZERO
+    }
+
+    constructor(str: String, split: String = ",") {
+        val s = str.split(split)
+        this.x = s[0].toBigInteger()
+        this.y = s[1].toBigInteger()
     }
 
     constructor(x: BigInteger, y: BigInteger) {

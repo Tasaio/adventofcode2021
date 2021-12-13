@@ -1,5 +1,6 @@
 package adventofcode
 
+import java.lang.Integer.max
 import java.lang.RuntimeException
 import java.math.BigInteger
 import java.util.*
@@ -306,8 +307,12 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return grid.flatten()
     }
 
-    fun flip() {
+    fun flipX() {
         grid.forEach { it.reverse() }
+    }
+
+    fun flipY() {
+        grid.reverse()
     }
 
     fun getBorderTiles(direction: Direction? = null): List<GridNode> {
@@ -335,15 +340,16 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return borderTiles
     }
 
-    fun rotate() {
-        val newGrid = LinkedList<LinkedList<GridNode>>()
-        for (y in 0 until grid.size) {
-            newGrid.add(LinkedList())
-            for (x in 0 until grid.size) {
-                newGrid.last.addFirst(grid[x][y])
+    fun rotate(): Grid {
+        val newInput = arrayListOf<String>()
+        for (y in 0 until sizeX()) {
+            var newLine = ""
+            for (x in 0 until sizeY()) {
+                newLine = get(Coordinate(y, x))!!.content + newLine
             }
+            newInput += newLine
         }
-        grid = newGrid
+        return Grid(newInput)
     }
 
     fun fastestWayToEachNode(
@@ -388,16 +394,19 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return fastestToNode.filter { to.contains(it.key) }
     }
 
-    fun combine(otherGrid: Grid, calculation: (GridNode, GridNode) -> Char): Grid {
-        val newGridInput = arrayListOf<String>()
-        for (x in 0 until grid.size) {
-            newGridInput.add("")
-            for (y in 0 until grid[x].size) {
-                newGridInput[newGridInput.lastIndex] =
-                    newGridInput[newGridInput.lastIndex] + calculation.invoke(grid[x][y], otherGrid.grid[x][y])
+    fun merge(otherGrid: Grid, calculation: (GridNode?, GridNode?) -> Char,
+              fromX: Int = 0, fromY: Int = 0, toX: Int = max(sizeX(), otherGrid.sizeX()), toY: Int = max(sizeY(), otherGrid.sizeY())
+    ): Grid {
+        val list = arrayListOf<String>()
+        for (y in fromY until toY) {
+            var row = ""
+            for (x in fromX until toX) {
+                val c = Coordinate(x, y)
+                row += calculation.invoke(get(c), otherGrid.get(c))
             }
+            list.add(row)
         }
-        return Grid(newGridInput)
+        return Grid(list)
     }
 
     fun update() {
@@ -416,7 +425,19 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return newGrid
     }
 
-    fun print(fromY: Int? = null, toY: Int? = null) {
+    fun partOfGrid(fromY: Int = 0, toY: Int = sizeY(), fromX: Int = 0, toX: Int = sizeX()): Grid {
+        val list = arrayListOf<String>()
+        for (y in fromY until toY) {
+            var row = ""
+            for (x in fromX until toX) {
+                row += get(Coordinate(x, y))!!.content
+            }
+            list.add(row)
+        }
+        return Grid(list)
+    }
+
+    fun printDebug(fromY: Int? = null, toY: Int? = null) {
         println("--- Grid ---")
         var finalRowDigits = (sizeY() - 1).toString().length
         var row = 0
@@ -431,6 +452,29 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
             }
         }
         println("------------")
+    }
+
+    fun printReadable(fromY: Int? = null, toY: Int? = null) {
+        println("--- Grid ---")
+        var row = 0
+        grid.forEach {
+            if ((fromY == null || row >= fromY) && (toY == null || row <= toY)) {
+                it.forEach {
+                    print(readable(it.content))
+                }
+                println()
+            }
+        }
+        println("------------")
+    }
+
+    private fun readable(c: Char): Char {
+        if (c == '#') {
+            return '█'
+        } else if (c == '.') {
+            return ' '
+        }
+        return c
     }
 
     override fun equals(other: Any?): Boolean {
