@@ -89,7 +89,7 @@ class Day05 : Y2021Day(5) {
             }
         }
 
-        g.print()
+        g.printDebug()
 
         return g.count {
             it.content.isDigit() && it.content.toIntValue() > 1

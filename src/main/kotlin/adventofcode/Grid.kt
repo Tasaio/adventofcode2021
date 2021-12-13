@@ -1,7 +1,6 @@
 package adventofcode
 
 import java.lang.Integer.max
-import java.lang.RuntimeException
 import java.math.BigInteger
 import java.util.*
 import kotlin.math.absoluteValue
@@ -18,7 +17,8 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
         val list = arrayListOf<GridNode>()
         for (x in posX - distance..posX + distance) {
             for (y in posY - distance..posY + distance) {
-                var _x = x; var _y = y;
+                var _x = x
+                var _y = y
                 if (!straight && (x == posX || y == posY))
                     continue
                 else if (!diagonal && x != posX && y != posY) {
@@ -394,8 +394,9 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return fastestToNode.filter { to.contains(it.key) }
     }
 
-    fun merge(otherGrid: Grid, calculation: (GridNode?, GridNode?) -> Char,
-              fromX: Int = 0, fromY: Int = 0, toX: Int = max(sizeX(), otherGrid.sizeX()), toY: Int = max(sizeY(), otherGrid.sizeY())
+    fun merge(
+        otherGrid: Grid, calculation: (GridNode?, GridNode?) -> Char,
+        fromX: Int = 0, fromY: Int = 0, toX: Int = max(sizeX(), otherGrid.sizeX()), toY: Int = max(sizeY(), otherGrid.sizeY())
     ): Grid {
         val list = arrayListOf<String>()
         for (y in fromY until toY) {
@@ -425,11 +426,11 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return newGrid
     }
 
-    fun partOfGrid(fromY: Int = 0, toY: Int = sizeY(), fromX: Int = 0, toX: Int = sizeX()): Grid {
+    fun partOfGrid(fromY: Int = 0, toY: Int = sizeY() - 1, fromX: Int = 0, toX: Int = sizeX() - 1): Grid {
         val list = arrayListOf<String>()
-        for (y in fromY until toY) {
+        for (y in fromY..toY) {
             var row = ""
-            for (x in fromX until toX) {
+            for (x in fromX..toX) {
                 row += get(Coordinate(x, y))!!.content
             }
             list.add(row)

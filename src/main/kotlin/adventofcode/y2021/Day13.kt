@@ -61,7 +61,7 @@ open class Day13(staticInput: String? = null) : Y2021Day(13, staticInput) {
     fun fold(line: String) {
         if (line.contains('y')) {
             val num = line.parseNumbersToSingleInt()
-            val top = grid.partOfGrid(toY = num)
+            val top = grid.partOfGrid(toY = num - 1)
             val bottom = grid.partOfGrid(fromY = num + 1)
 
             for (y in 0 until bottom.sizeY()) {
@@ -75,7 +75,7 @@ open class Day13(staticInput: String? = null) : Y2021Day(13, staticInput) {
             grid = top
         } else if (line.contains('x')) {
             val num = line.parseNumbersToSingleInt()
-            val left = grid.partOfGrid(toX = num)
+            val left = grid.partOfGrid(toX = num - 1)
             val right = grid.partOfGrid(fromX = num + 1)
 
             for (y in 0 until right.sizeY()) {
