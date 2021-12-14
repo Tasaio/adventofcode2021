@@ -76,11 +76,9 @@ fun String.parseNumbersToBigIntegerList(): List<BigInteger> {
     return list
 }
 
-fun String.countOfEachCharacter(): Map<Char, Int> {
-    val counter = hashMapOf<Char, Int>()
-    for (c in this) {
-        counter.compute(c) { _, b -> if (b == null) 1 else b + 1 }
-    }
+fun String.countOfEachCharacter(): BigIntegerMap<Char> {
+    val counter = BigIntegerMap<Char>()
+    forEach { counter.inc(it) }
     return counter
 }
 
