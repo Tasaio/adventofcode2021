@@ -20,7 +20,7 @@ fun <T: Day> runDay(day: KClass<T>, testInput: String, testAnswer1: Number? = nu
         val testPart2 = test.part2()
         if (testAnswer2 == null) {
             println("No test answer to part2 given")
-        } else if (testPart2 == testAnswer2) {
+        } else if (testPart2.toString() == testAnswer2.toString()) {
             test2Pass = true
         }
         println("TEST ${if (test2Pass) "OK" else "NOT OK"}: $testPart2 (test answer is ${testAnswer2})")

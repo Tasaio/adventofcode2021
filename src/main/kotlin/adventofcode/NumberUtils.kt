@@ -87,16 +87,24 @@ class RotatingNumber {
 class MinValue() {
     private var value: BigInteger? = null
 
-    fun next(next: Int) {
-        next(next.toBigInteger())
+    fun next(next: Int): Boolean {
+        return next(next.toBigInteger())
     }
 
-    fun next(next: Long) {
-        next(next.toBigInteger())
+    fun next(next: Long): Boolean {
+        return next(next.toBigInteger())
     }
 
-    fun next(next: BigInteger) {
-        if (value == null || value!! > next) value = next
+    fun next(next: BigInteger): Boolean {
+        if (value == null || value!! > next) {
+            value = next
+            return true
+        }
+        return false
+    }
+
+    fun hasValue(): Boolean {
+        return value != null
     }
 
     fun get(): BigInteger {
@@ -121,6 +129,10 @@ class MaxValue() {
             value = next
             this.related = related
         }
+    }
+
+    fun hasValue(): Boolean {
+        return value != null
     }
 
     fun get(): BigInteger {

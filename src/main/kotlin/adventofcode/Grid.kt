@@ -352,46 +352,107 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return Grid(newInput)
     }
 
+    data class Path(val nodes: List<GridNode>, val cost: Int) {
+        val last: GridNode = nodes.last()
+    }
+
     fun fastestWayToEachNode(
         canStepRule: (GridNode) -> Boolean,
         from: GridNode,
-        to: Collection<GridNode>,
+        to: GridNode,
+        cost: (GridNode) -> Int,
         diagonal: Boolean = false
-    ): Map<GridNode, Set<List<GridNode>>> {
+    ): Map<GridNode, Set<Path>> {
+        val fastestToNode = hashMapOf<GridNode, MutableSet<Path>>()
+        val q = LinkedList<Path>()
 
-        val fastestToNode = hashMapOf<GridNode, HashSet<List<GridNode>>>()
-
-        val q = LinkedList<List<GridNode>>()
+//        val q = PriorityQueue { a: Path, b: Path -> a.last.manhattanDistanceTo(to).compareTo(b.last.manhattanDistanceTo(to))  }
 
         from.getNeighbors(diagonal = diagonal)
             .filter { canStepRule.invoke(it) }
-            .forEach { q.add(arrayListOf(it)) }
+            .forEach { q.add(Path(arrayListOf(it), cost(it))) }
+
+        val best = MinValue()
 
         while (!q.isEmpty()) {
             val cur = q.poll()
-            val last = cur.last()
-            val size = cur.size
 
-            if (fastestToNode.containsKey(last)) {
-                val savedSize = fastestToNode[last]!!.first().size
-                if (savedSize > size) {
-                    fastestToNode[last] = hashSetOf(ArrayList(cur))
-                } else if (savedSize == size) {
-                    fastestToNode[last]!!.add(ArrayList(cur))
-                    continue
-                } else {
-                    continue
+            if (cur.last == to) {
+                if (best.next(cur.cost)) {
+                    println("Best: ${cur.cost} (queue size ${q.size})")
                 }
-            } else {
-                fastestToNode[last] = hashSetOf(ArrayList(cur))
             }
 
-            last.getNeighbors(diagonal = diagonal)
-                .filter { canStepRule.invoke(it) }
-                .forEach { q.add(cur.copyOfListWithNewElement(it)) }
+            var addNew = false
+
+            if (fastestToNode.containsKey(cur.last)) {
+                val savedCost = fastestToNode[cur.last]!!.first().cost
+                if (savedCost > cur.cost) {
+                    fastestToNode[cur.last] = hashSetOf(Path(cur.nodes, cur.cost))
+                    addNew = true
+                } else if (savedCost == cur.cost) {
+                    fastestToNode[cur.last]!!.add(Path(cur.nodes, cur.cost))
+                }
+            } else {
+                fastestToNode[cur.last] = hashSetOf(Path(cur.nodes, cur.cost))
+                addNew = true
+            }
+
+            if (addNew) {
+                cur.last.getNeighbors(diagonal = diagonal)
+                    .shuffled()
+                    .filter { node ->
+                        if (canStepRule.invoke(node)) {
+                            val newCost = cur.cost + cost(node)
+                            if (!best.hasValue() || (newCost < best.get().toLong())) {
+                                return@filter true
+                            }
+                        }
+                        false
+                    }
+                    .forEach { q.add(Path(cur.nodes.copyOfListWithNewElement(it), cur.cost + cost(it))) }
+            }
         }
 
-        return fastestToNode.filter { to.contains(it.key) }
+        return fastestToNode
+    }
+
+    fun shortestPath(from: GridNode,
+                     destination: GridNode,
+                     cost: (GridNode) -> BigInteger
+    ): Pair<List<GridNode>, BigInteger> {
+        return dijkstra(from, destination, cost)[destination] ?: (emptyList<GridNode>() to Long.MAX_VALUE.toBigInteger())
+    }
+
+    private fun dijkstra(from: GridNode, destination: GridNode? = null, cost: (GridNode) -> BigInteger): Map<GridNode, Pair<List<GridNode>, BigInteger>> {
+        val unvisitedSet = getAll().toMutableSet()
+        val costs = getAll().map { it to Long.MAX_VALUE.toBigInteger() }.toMap().toMutableMap()
+        val paths = mutableMapOf<GridNode, List<GridNode>>()
+        costs[from] = BigInteger.ZERO
+
+        var current = from
+
+        while (unvisitedSet.isNotEmpty() && unvisitedSet.contains(destination)) {
+            current.getNeighbors().forEach { adjacent ->
+                val cost = cost(adjacent)
+                if (costs[current]!! + cost < costs[adjacent]!!) {
+                    costs[adjacent] = costs[current]!! + cost
+                    paths[adjacent] = paths.getOrDefault(current, listOf(current)) + listOf(adjacent)
+                }
+            }
+
+            unvisitedSet.remove(current)
+
+            if (current == destination || unvisitedSet.all { costs[it]!! == Long.MAX_VALUE.toBigInteger() }) {
+                break
+            }
+
+            if (unvisitedSet.isNotEmpty()) {
+                current = unvisitedSet.minByOrNull { costs[it]!! }!!
+            }
+        }
+
+        return paths.mapValues { entry -> entry.value to costs[entry.key]!! }
     }
 
     fun merge(
