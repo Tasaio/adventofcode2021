@@ -17,6 +17,10 @@ fun String.binaryStringToInt(): Int {
     return Integer.parseInt(this, 2);
 }
 
+fun String.binaryStringToBigInteger(): BigInteger {
+    return BigInteger(this, 2)
+}
+
 fun String.parseNumbersToSingleBigInteger(): BigInteger {
     val sb = StringBuilder()
     for (c in this.toCharArray()) {
