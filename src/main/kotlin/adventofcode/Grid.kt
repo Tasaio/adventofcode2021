@@ -3,6 +3,7 @@ package adventofcode
 import java.lang.Integer.max
 import java.math.BigInteger
 import java.util.*
+import kotlin.Comparator
 import kotlin.math.absoluteValue
 
 class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char) {
@@ -221,6 +222,22 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return grid[y][x]
     }
 
+    fun topLeftCorner(): GridNode {
+        return get(0, 0)
+    }
+
+    fun topRightCorner(): GridNode {
+        return get(sizeX() - 1, 0)
+    }
+
+    fun bottomLeftCorner(): GridNode {
+        return get(0, sizeY() - 1)
+    }
+
+    fun bottomRightCorner(): GridNode {
+        return get(sizeX() - 1, sizeY() - 1)
+    }
+
     fun size(): Int {
         return sizeX() * sizeY()
     }
@@ -352,7 +369,7 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         return Grid(newInput)
     }
 
-    data class Path(val nodes: List<GridNode>, val cost: Int) {
+    data class GridPath(val nodes: List<GridNode>, val cost: Int) {
         val last: GridNode = nodes.last()
     }
 
@@ -360,17 +377,17 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         canStepRule: (GridNode) -> Boolean,
         from: GridNode,
         to: GridNode,
-        cost: (GridNode) -> Int,
-        diagonal: Boolean = false
-    ): Map<GridNode, Set<Path>> {
-        val fastestToNode = hashMapOf<GridNode, MutableSet<Path>>()
-        val q = LinkedList<Path>()
+        cost: (GridNode) -> Int = { 1 },
+        diagonal: Boolean = false,
+        comparator: Comparator<GridPath> = Comparator { a: GridPath, b: GridPath -> a.cost.compareTo(b.cost) }
+    ): Map<GridNode, Set<GridPath>> {
+        val fastestToNode = hashMapOf<GridNode, MutableSet<GridPath>>()
 
-//        val q = PriorityQueue { a: Path, b: Path -> a.last.manhattanDistanceTo(to).compareTo(b.last.manhattanDistanceTo(to))  }
+        val q = PriorityQueue(comparator)
 
         from.getNeighbors(diagonal = diagonal)
             .filter { canStepRule.invoke(it) }
-            .forEach { q.add(Path(arrayListOf(it), cost(it))) }
+            .forEach { q.add(GridPath(arrayListOf(it), cost(it))) }
 
         val best = MinValue()
 
@@ -388,19 +405,18 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
             if (fastestToNode.containsKey(cur.last)) {
                 val savedCost = fastestToNode[cur.last]!!.first().cost
                 if (savedCost > cur.cost) {
-                    fastestToNode[cur.last] = hashSetOf(Path(cur.nodes, cur.cost))
+                    fastestToNode[cur.last] = hashSetOf(GridPath(cur.nodes, cur.cost))
                     addNew = true
                 } else if (savedCost == cur.cost) {
-                    fastestToNode[cur.last]!!.add(Path(cur.nodes, cur.cost))
+                    fastestToNode[cur.last]!!.add(GridPath(cur.nodes, cur.cost))
                 }
             } else {
-                fastestToNode[cur.last] = hashSetOf(Path(cur.nodes, cur.cost))
+                fastestToNode[cur.last] = hashSetOf(GridPath(cur.nodes, cur.cost))
                 addNew = true
             }
 
             if (addNew) {
                 cur.last.getNeighbors(diagonal = diagonal)
-                    .shuffled()
                     .filter { node ->
                         if (canStepRule.invoke(node)) {
                             val newCost = cur.cost + cost(node)
@@ -410,49 +426,11 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
                         }
                         false
                     }
-                    .forEach { q.add(Path(cur.nodes.copyOfListWithNewElement(it), cur.cost + cost(it))) }
+                    .forEach { q.add(GridPath(cur.nodes.copyOfListWithNewElement(it), cur.cost + cost(it))) }
             }
         }
 
         return fastestToNode
-    }
-
-    fun shortestPath(from: GridNode,
-                     destination: GridNode,
-                     cost: (GridNode) -> BigInteger
-    ): Pair<List<GridNode>, BigInteger> {
-        return dijkstra(from, destination, cost)[destination] ?: (emptyList<GridNode>() to Long.MAX_VALUE.toBigInteger())
-    }
-
-    private fun dijkstra(from: GridNode, destination: GridNode? = null, cost: (GridNode) -> BigInteger): Map<GridNode, Pair<List<GridNode>, BigInteger>> {
-        val unvisitedSet = getAll().toMutableSet()
-        val costs = getAll().map { it to Long.MAX_VALUE.toBigInteger() }.toMap().toMutableMap()
-        val paths = mutableMapOf<GridNode, List<GridNode>>()
-        costs[from] = BigInteger.ZERO
-
-        var current = from
-
-        while (unvisitedSet.isNotEmpty() && unvisitedSet.contains(destination)) {
-            current.getNeighbors().forEach { adjacent ->
-                val cost = cost(adjacent)
-                if (costs[current]!! + cost < costs[adjacent]!!) {
-                    costs[adjacent] = costs[current]!! + cost
-                    paths[adjacent] = paths.getOrDefault(current, listOf(current)) + listOf(adjacent)
-                }
-            }
-
-            unvisitedSet.remove(current)
-
-            if (current == destination || unvisitedSet.all { costs[it]!! == Long.MAX_VALUE.toBigInteger() }) {
-                break
-            }
-
-            if (unvisitedSet.isNotEmpty()) {
-                current = unvisitedSet.minByOrNull { costs[it]!! }!!
-            }
-        }
-
-        return paths.mapValues { entry -> entry.value to costs[entry.key]!! }
     }
 
     fun merge(

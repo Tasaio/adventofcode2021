@@ -30,19 +30,14 @@ open class Day15(staticInput: String? = null) : Y2021Day(15, staticInput) {
     }
 
     override fun part1(): Number? {
-        val last = grid.get(grid.sizeX() - 1, grid.sizeY() - 1)
-//        val fastest = grid.fastestWayToEachNode(canStepRule = { true },
-//            from = grid.get(0, 0),
-//            to = last,
-//            cost = { it.contentAsNum() }
-//        )
-//        return fastest[last]!!.first().cost
-        val result = grid.shortestPath(
-            from = grid.get(0, 0),
-            destination = last,
-            cost = { it.contentAsNum().toBigInteger() }
+        val target = grid.bottomRightCorner()
+        val fastest = grid.fastestWayToEachNode(
+            canStepRule = { true },
+            from = grid.topLeftCorner(),
+            to = target,
+            cost = { it.contentAsNum() }
         )
-        return result.second
+        return fastest[target]!!.first().cost
     }
 
     override fun part2(): Number? {
@@ -61,17 +56,16 @@ open class Day15(staticInput: String? = null) : Y2021Day(15, staticInput) {
             }
         }
 
-
         val grid = Grid(newGrid)
-        println("Grid size ${grid.size()}")
-        val last = grid.get(grid.sizeX() - 1, grid.sizeY() - 1)
+        val target = grid.bottomRightCorner()
 
-        val result = grid.shortestPath(
-            from = grid.get(0, 0),
-            destination = last,
-            cost = { it.contentAsNum().toBigInteger() }
+        val fastest = grid.fastestWayToEachNode(
+            canStepRule = { true },
+            from = grid.topLeftCorner(),
+            to = target,
+            cost = { it.contentAsNum() }
         )
-        return result.second
+        return fastest[target]!!.first().cost
     }
 
 }
