@@ -1,5 +1,6 @@
 package adventofcode
 
+import java.lang.UnsupportedOperationException
 import java.math.BigInteger
 
 fun Pair<String, String>.toCoordinate(): Coordinate {
@@ -115,12 +116,58 @@ class Coordinate {
 data class CoordinateWithDimensions(val dim: Int, val values: List<BigInteger>? = null) {
     val pos: Array<BigInteger?> = arrayOfNulls(dim)
 
+    val rotations2d: List<List<Int>> =
+        arrayListOf(
+            arrayListOf(1, 1), arrayListOf(1, -1),
+            arrayListOf(-1, 1), arrayListOf(-1, -1)
+        );
+
+    val rotations3d: List<List<Int>> =
+        arrayListOf(
+            arrayListOf(1, 1, 1), arrayListOf(1, 1, -1),
+            arrayListOf(1, -1, 1), arrayListOf(-1, 1, 1),
+            arrayListOf(-1, -1, 1), arrayListOf(-1, 1, -1),
+            arrayListOf(1, -1, -1), arrayListOf(-1, -1, -1)
+        );
+
     init {
         if (values != null) {
             for (i in values.indices) {
                 pos[i] = values[i]
             }
         }
+    }
+
+    fun allRotations(): List<CoordinateWithDimensions> {
+        if (dim > 3) throw UnsupportedOperationException()
+
+        var rotations = if (dim == 2) rotations2d else rotations3d
+
+        val res = arrayListOf<CoordinateWithDimensions>()
+        for (rotation in rotations) {
+            val new = arrayListOf<BigInteger>()
+            for (d in 0 until dim) {
+                new.add(pos[d]!! * rotation[d].toBigInteger())
+            }
+            res.add(CoordinateWithDimensions(dim, new))
+        }
+        return res
+    }
+
+    operator fun plus(c: CoordinateWithDimensions): CoordinateWithDimensions {
+        val new = arrayListOf<BigInteger>()
+        for (d in 0 until dim) {
+            new.add(pos[d]!! + c.pos[d]!!)
+        }
+        return CoordinateWithDimensions(dim, new)
+    }
+
+    operator fun minus(c: CoordinateWithDimensions): CoordinateWithDimensions {
+        val new = arrayListOf<BigInteger>()
+        for (d in 0 until dim) {
+            new.add(pos[d]!! - c.pos[d]!!)
+        }
+        return CoordinateWithDimensions(dim, new)
     }
 
     fun set(dim: Int, value: BigInteger) {
@@ -135,6 +182,107 @@ data class CoordinateWithDimensions(val dim: Int, val values: List<BigInteger>? 
         }
         return sum
     }
+
+    fun allRotationsAndDirections(): List<CoordinateWithDimensions> {
+        if (dim > 3) throw UnsupportedOperationException()
+
+        val res = arrayListOf<CoordinateWithDimensions>()
+
+        data class ABC(val a: BigInteger, val b: BigInteger, val c: BigInteger)
+
+        fun add2dim(a: (ABC) -> BigInteger, b: (ABC) -> BigInteger) {
+            val abc = ABC(pos[0]!!, pos[1]!!, BigInteger.ZERO)
+            res.add(CoordinateWithDimensions(dim, arrayListOf(a.invoke(abc), b.invoke(abc))))
+        }
+
+        fun add3dim(a: (ABC) -> BigInteger, b: (ABC) -> BigInteger, c: (ABC) -> BigInteger) {
+            val abc = ABC(pos[0]!!, pos[1]!!, pos[2]!!)
+            res.add(CoordinateWithDimensions(dim, arrayListOf(a.invoke(abc), b.invoke(abc), c.invoke(abc))))
+        }
+
+        if (dim == 2) {
+            add2dim({ it.a }, { it.b })
+            add2dim({ it.a }, { -it.b })
+            add2dim({ -it.a }, { it.b })
+            add2dim({ -it.a }, { -it.b })
+
+            add2dim({ it.b }, { it.a })
+            add2dim({ it.b }, { -it.a })
+            add2dim({ -it.b }, { it.a })
+            add2dim({ -it.b }, { -it.a })
+        } else if (dim == 3) {
+            CoordinateWithDimensions(3, arrayListOf(pos[0]!!, pos[1]!!, pos[2]!!))
+            add3dim({ it.a }, { it.b }, { it.c })
+            add3dim({ it.b }, { it.c }, { it.a })
+            add3dim({ it.c }, { it.a }, { it.b })
+            add3dim({ it.c }, { it.b }, { -it.a })
+            add3dim({ it.b }, { it.a }, { -it.c })
+            add3dim({ it.a }, { it.c }, { -it.b })
+
+            add3dim({ it.a }, { -it.b }, { -it.c })
+            add3dim({ it.b }, { -it.c }, { -it.a })
+            add3dim({ it.c }, { -it.a }, { -it.b })
+            add3dim({ it.c }, { -it.b }, { it.a })
+            add3dim({ it.b }, { -it.a }, { it.c })
+            add3dim({ it.a }, { -it.c }, { it.b })
+
+            add3dim({ -it.a }, { it.b }, { -it.c })
+            add3dim({ -it.b }, { it.c }, { -it.a })
+            add3dim({ -it.c }, { it.a }, { -it.b })
+            add3dim({ -it.c }, { it.b }, { it.a })
+            add3dim({ -it.b }, { it.a }, { it.c })
+            add3dim({ -it.a }, { it.c }, { it.b })
+
+            add3dim({ -it.a }, { -it.b }, { it.c })
+            add3dim({ -it.b }, { -it.c }, { it.a })
+            add3dim({ -it.c }, { -it.a }, { it.b })
+            add3dim({ -it.c }, { -it.b }, { -it.a })
+            add3dim({ -it.b }, { -it.a }, { -it.c })
+            add3dim({ -it.a }, { -it.c }, { -it.b })
+        }
+
+        return res
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CoordinateWithDimensions
+
+        if (dim != other.dim) return false
+        if (values != other.values) return false
+        if (!pos.contentEquals(other.pos)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dim
+        result = 31 * result + (values?.hashCode() ?: 0)
+        result = 31 * result + pos.contentHashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "$values"
+    }
+}
+
+fun Iterable<CoordinateWithDimensions>.allPermutations(): List<List<CoordinateWithDimensions>> {
+    val res = arrayListOf<List<CoordinateWithDimensions>>()
+
+    val allLists = map { it.allRotationsAndDirections() }
+
+    for (i in 0 until allLists[0].size) {
+        val newList = arrayListOf<CoordinateWithDimensions>()
+        allLists.forEach {
+            newList.add(it[i])
+        }
+        res.add(newList)
+    }
+
+    return res
 }
 
 data class MinMaxXY(val minX: BigInteger, val maxX: BigInteger, val minY: BigInteger, val maxY: BigInteger) {
