@@ -199,7 +199,7 @@ open class Day19(staticInput: String? = null) : Y2021Day(19, staticInput) {
                                 }
 
                                 if (hits >= target) {
-                                    println("Scanner found at: $pos")
+                                    println("Scanner found at: $pos ($hits common)")
                                     done.add(i)
                                     posOfAllScanners.add(pos)
                                     known.add(permutedList.map { it + pos }.toSet())
@@ -217,14 +217,6 @@ open class Day19(staticInput: String? = null) : Y2021Day(19, staticInput) {
     }
 
     override fun part2(): Number? {
-        val max = MaxValue()
-        posOfAllScanners.indices.forEach { a ->
-            posOfAllScanners.indices.forEach { b ->
-                if (a != b) {
-                    max.next(posOfAllScanners[a].manhattanDistanceTo(posOfAllScanners[b]))
-                }
-            }
-        }
-        return max.get()
+        return posOfAllScanners.maxValueOfTwoElements { c1, c2 -> c1.manhattanDistanceTo(c2) }
     }
 }

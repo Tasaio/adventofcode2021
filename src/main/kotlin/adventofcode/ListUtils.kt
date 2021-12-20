@@ -1,5 +1,6 @@
 package adventofcode
 
+import java.math.BigInteger
 import java.util.*
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
@@ -44,6 +45,26 @@ fun <T> List<T>.copyOfListWithNewElement(elementToAdd: T): ArrayList<T> {
     val newList = ArrayList(this)
     newList.add(elementToAdd)
     return newList
+}
+
+fun <T> List<T>.maxValueOfTwoElements(extract: (T, T) -> BigInteger): BigInteger {
+    val max = MaxValue()
+    indices.forEach { a ->
+        indices.filter { it != a }.forEach { b ->
+            max.next(extract.invoke(get(a), get(b)))
+        }
+    }
+    return max.get()
+}
+
+fun <T> List<T>.minValueOfTwoElements(extract: (T, T) -> BigInteger): BigInteger {
+    val min = MinValue()
+    indices.forEach { a ->
+        indices.filter { it != a }.forEach { b ->
+            min.next(extract.invoke(get(a), get(b)))
+        }
+    }
+    return min.get()
 }
 
 fun <T> List<T>.applyToEach(element: T) {

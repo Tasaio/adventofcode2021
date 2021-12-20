@@ -13,6 +13,10 @@ fun String.parseNumbersToSingleInt(): Int {
     return sb.toString().toInt()
 }
 
+fun List<Char>.charArrayToString(): String {
+    return joinToString(separator = "")
+}
+
 fun String.binaryStringToInt(): Int {
     return Integer.parseInt(this, 2);
 }

@@ -189,17 +189,10 @@ open class Day18(staticInput: String? = null) : Y2021Day(18, staticInput) {
     }
 
     override fun part2(): Number? {
-        val max = MaxValue()
-
-        for (a in input.indices) {
-            for (b in input.indices) {
-                if (a == b) continue
-                val q = "[${input[a]},${input[b]}]"
-                val r = reduce(q)
-                max.next(magnitude(r))
-            }
+        return input.maxValueOfTwoElements { a, b ->
+            val q = "[$a,$b]"
+            val r = reduce(q)
+            magnitude(r)
         }
-
-        return max.get()
     }
 }

@@ -14,7 +14,7 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
         return Coordinate(posX, posY)
     }
 
-    fun getNeighbors(distance: Int = 1, diagonal: Boolean = false, straight: Boolean = true, wrap: Boolean = false): List<GridNode> {
+    fun getNeighbors(distance: Int = 1, diagonal: Boolean = false, straight: Boolean = true, wrap: Boolean = false, countOutOfBoundsNeighborsAs: Char? = null): List<GridNode> {
         val list = arrayListOf<GridNode>()
         for (x in posX - distance..posX + distance) {
             for (y in posY - distance..posY + distance) {
@@ -41,6 +41,9 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
                             _y = 0 + (parent.grid.size - y)
                         }
                     } else {
+                        if (countOutOfBoundsNeighborsAs != null) {
+                            list.add(GridNode(parent, _x, _y, countOutOfBoundsNeighborsAs))
+                        }
                         continue
                     }
                 }
@@ -162,7 +165,7 @@ fun Iterable<GridNode>.sortedByDistanceTo(node: GridNode): List<GridNode> {
     return sortedBy { node.manhattanDistanceTo(it) }
 }
 
-fun Iterable<GridNode>.sortedByXThenY(): List<GridNode> {
+fun Iterable<GridNode>.sortedByYThenX(): List<GridNode> {
     return sortedBy { it.posX + it.posY * it.parent.sizeX() }
 }
 
