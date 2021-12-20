@@ -204,6 +204,22 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         }
     }
 
+    fun createExpandedGrid(expandByX: Int, expandByY: Int, expandWithContent: Char): Grid {
+        val newInput = arrayListOf<String>()
+        for (y in 0 until sizeY() + (expandByY * 2)) {
+            var line = ""
+            for (x in 0 until sizeX() + (expandByX * 2)) {
+                line += if (y < expandByY || y >= sizeY() + expandByY || x < expandByX || x >= sizeX() + expandByX) {
+                    expandWithContent
+                } else {
+                    get(x - expandByX, y - expandByY).content
+                }
+            }
+            newInput.add(line)
+        }
+        return Grid(newInput)
+    }
+
     open fun moveNode(node: GridNode, changeX: Int, changeY: Int) {
         val oldX = node.posX
         val oldY = node.posY
