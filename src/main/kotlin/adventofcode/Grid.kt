@@ -3,7 +3,6 @@ package adventofcode
 import java.lang.Integer.max
 import java.math.BigInteger
 import java.util.*
-import kotlin.Comparator
 import kotlin.math.absoluteValue
 
 class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char) {
@@ -14,17 +13,24 @@ class GridNode(val parent: Grid, var posX: Int, var posY: Int, var content: Char
         return Coordinate(posX, posY)
     }
 
-    fun getNeighbors(distance: Int = 1, diagonal: Boolean = false, straight: Boolean = true, wrap: Boolean = false, countOutOfBoundsNeighborsAs: Char? = null): List<GridNode> {
+    fun getNeighbors(
+        distance: Int = 1,
+        straight: Boolean = true,
+        diagonal: Boolean = false,
+        includeSelf: Boolean = false,
+        wrap: Boolean = false,
+        countOutOfBoundsNeighborsAs: Char? = null
+    ): List<GridNode> {
         val list = arrayListOf<GridNode>()
-        for (x in posX - distance..posX + distance) {
-            for (y in posY - distance..posY + distance) {
+        for (y in posY - distance..posY + distance) {
+            for (x in posX - distance..posX + distance) {
                 var _x = x
                 var _y = y
                 if (!straight && (x == posX || y == posY))
                     continue
                 else if (!diagonal && x != posX && y != posY) {
                     continue
-                } else if (x == posX && y == posY) {
+                } else if (!includeSelf && x == posX && y == posY) {
                     continue
                 } else if (x < 0 || y < 0 || y >= parent.grid.size || x >= parent.grid[y].size) {
                     if (wrap) {
@@ -166,7 +172,7 @@ fun Iterable<GridNode>.sortedByDistanceTo(node: GridNode): List<GridNode> {
 }
 
 fun Iterable<GridNode>.sortedByYThenX(): List<GridNode> {
-    return sortedBy { it.posX + it.posY * it.parent.sizeX() }
+    return sortedBy { it.posY * it.parent.sizeX() + it.posX }
 }
 
 open class Grid(val input: List<String>?) : Iterable<GridNode> {
@@ -190,6 +196,13 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
         sizeY.toInt(),
         defaultContent
     )
+
+    fun applyToAllAndUpdate(change: (GridNode) -> Char) {
+        forEach {
+            it.next(change.invoke(it))
+        }
+        update()
+    }
 
     fun reset() {
         grid = LinkedList<LinkedList<GridNode>>()
@@ -554,6 +567,10 @@ open class Grid(val input: List<String>?) : Iterable<GridNode> {
     override fun iterator(): Iterator<GridNode> {
         return getAll().iterator()
     }
+}
+
+fun List<String>.toGrid(): Grid {
+    return Grid(this)
 }
 
 fun coordinatesToGrid(map: Map<Coordinate, Char>, defaultChar: Char = ' '): Grid {

@@ -13,7 +13,7 @@ fun String.parseNumbersToSingleInt(): Int {
     return sb.toString().toInt()
 }
 
-fun List<Char>.charArrayToString(): String {
+fun List<Char>.charListToString(): String {
     return joinToString(separator = "")
 }
 
