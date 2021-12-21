@@ -31,26 +31,9 @@ fun BigInteger.max(other: BigInteger): BigInteger {
     return if (this >= other) this else other
 }
 
-class RotatingNumber {
+data class RotatingNumber(val from: BigInteger, val to: BigInteger, val value: BigInteger = from, val diff: BigInteger = to - from + BigInteger.ONE) {
 
-    val from: BigInteger
-    val to: BigInteger
-    val value: BigInteger
-    val diff: BigInteger
-
-    constructor(from: BigInteger, to: BigInteger, value: BigInteger = from) {
-        this.from = from
-        this.to = to
-        this.value = value
-        this.diff = to - from + BigInteger.ONE
-    }
-
-    constructor(from: Int, to: Int, value: Int = from) {
-        this.from = from.toBigInteger()
-        this.to = to.toBigInteger()
-        this.value = value.toBigInteger()
-        this.diff = (to - from + 1).toBigInteger()
-    }
+    constructor(from: Int, to: Int, value: Int = from) : this(from.toBigInteger(), to.toBigInteger(), value.toBigInteger(), (to - from + 1).toBigInteger())
 
     fun reverse(): RotatingNumber {
         val diffToTail = to - value
@@ -81,7 +64,6 @@ class RotatingNumber {
         val newValue = if (value - BigInteger.ONE < from) to else value - BigInteger.ONE
         return RotatingNumber(from, to, newValue)
     }
-
 }
 
 class MinValue() {
